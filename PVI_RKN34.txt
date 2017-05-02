@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+void PVI_RKN34(double const *dom, double const *alpha, int const Neq){
+     
+     int Ndec=3,i,j,k,OK,m,n=10;
+     double *u,*uv,*uRK3, *uRK4, *tv, *Err;
+     double *R1, *R2, *R3, *R4,*R5;
+     double t0, tf, t, tol, h, hmax,q;
+     FILE * fichero;
+     
+     t0 = dom[0];   tf = dom[1];
+     t = t0; tv[0] = t;
+     tol = pow(10,-Ndec);
+     hmax =(tf-t0)/n; h = hmax;
+     OK=1;  m=1;
+     
+     for(i = 0; i< Neq; i++) {
+           
+            uRK3[i] = alpha[i];
+            uRK4[i] = alpha[i];  
+                 
+     }
+      
+        
+                 double a[4] = {0,3/8,9/16,25/32,1}};
+                 double b[4][3] = {{0,0,0,0},{3/8,0,0,0},{0,9/16,0,0}{-125/672,325/336,0,0},{371/891,-200/297,1120/891,0}};
+                 double c3[4] = {37/225,44/117,0,448/975,0}};
+                 double c4[4] = {25/162,32/135,256/567,0,11/70}};
+     
+     
+                 while (OK)     {
+           
+                                for (j = 1; j < n+1; j++) {
+		                                     for (k = 0; k < Neq; k++) {
+
+			                                                            R1[k] = h*fun_f(t,u);
+                                                                        R2[k] = h*fun_f(t + a[1]*h, u + b[1]*R1);
+     	                                                                R3[k] = h*fun_f(t + a[2]*h, u + b[2][0]*R1[k] + b[2][1]*R2[k]);
+			                                                            R4[k] = h*fun_f(t + a[3]*h, u + b[3][0]*R1[k] + b[3][1]*R2[k] + b[3][2]*R3[k]);
+			                                                            R5[k] = h*fun_f(t + a[4]*h, u + b[4][0]*R1[k] + b[4][1]*R2[k] + b[4][2]*R3[k]+ b[4][3]*R4[k]);
+			           
+			                                                            uRK3[j+1] = u[j] + c3[0]*R1[k] + c3[1]*R2[k] + c3[2]*R3[k] + c3[3]*R4[k]+ c3[4]*R5[k];
+			                                                            uRK4[j+1] = u[j] + c4[0]*R1[k] + c4[1]*R2[k] + c4[2]*R3[k] + c4[3]*R4[k]+ c4[4]*R5[k];
+			           
+                                                                        Err = abs( uRK4[j+1] - uRK3[j+1] );
+                       
+			                                                            
+			           
+                                                                        }//FOR K
+                                            if (Err <= tol) {
+                                                             m = m +1;
+                                                             u[m] = uRK4[m];
+		                                                     uv[m] = u[m];
+	               	                                         t = t + h;
+		                                                     tv [m] = t;
+		                                                     fichero = fopen ("datos.txt", "w");
+                                                             fprintf(fichero, "%s\t  %s\t\n", "tv","uv"); 
+                                                             fprintf(fichero, "%e\t  %e\t\n", tv[m],uv[m]); 
+                                                             
+                                                            }//IF
+        
+                                            else {
+                                                  
+                                                  q = pow((tol/Err),1/4)
+                                                  
+                                                 if (0.1 <= q) {
+                                                     q = 0.1;
+                                                     }
+                                                     
+                                                 if (4 <= q){
+                                                     q = 4;
+                                                     }
+                                                     
+                                                   h = q*h;
+                                                   
+                                                 if (hmax = h){
+                                                     h = hmax;
+                                                     }
+                                                     
+                                                 if (t+h >= tf){
+                                                     h = tf - t;
+                                                     }
+                                                     
+                                                 if (t = tf){
+                                                     OK = 0;
+                                                     }
+		                                         
+	    
+                                                 }//ELSE
+            
+		     
+	                                 }//FOR  J
+	         
+                   fclose(fichero);
+                  }//WHILE
+
+     
+   }//PVI_RKN34
