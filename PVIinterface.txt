@@ -1,0 +1,103 @@
+#include <cabecera.h>
+double* fun_f(double t,double* u);
+
+double* sum_vec_2(double* v1,double *v2,int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i] + v2[i];
+    return out;
+}
+
+double* sum_vec_3(double* v1,double *v2,double *v3, int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i] + v2[i] + v3[i];
+    return out;
+}
+
+double* sum_vec_4(double* v1,double *v2,double* v3, double *v4,int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i] + v2[i]+ v3[i]+ v4[i];
+    return out;
+}
+
+double* sum_vec_5(double* v1,double *v2,double* v3, double *v4,double *v5,int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i] + v2[i]+ v3[i]+ v4[i] + v5[i];
+    return out;
+}
+
+double* sum_vec_6(double* v1,double *v2,double* v3, double *v4,double *v5,double *v6,int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i] + v2[i]+ v3[i]+ v4[i] + v5[i] + v6[i];
+    return out;
+}
+
+double* prod_vec(double* v1,double num,int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i]*num;
+    return out;   
+}
+
+void print_vector(double *v1,int n)
+{
+	int i = 0;
+	for(i = 0;i<n;i++)
+		printf("%lf ",v1[i]);
+}
+/////////////////////////////////////////////////////////////
+
+double* fun_f(double t, double *u) {
+		switch (int const np){
+		case 1:
+double res1=2,res2=8,L=1,Ca=0.5,E=200;
+		double *du;
+		du = (double*) malloc(sizeof(double)*3);
+
+		du[0]= (E/L)- u[0]*(res1/L)+u[1]*(res1/L);
+du[1]=(((E*(res1/L))-(u[0]*(pow(res1,2))/L)+ (u[1]*(((pow(res1,2)/L)-1/Ca))))*(1/(res1+res2)));
+		du[2]= u[1];
+		break;
+}
+	return du;
+}
+}
+
+void PVI_interface () {
+	switch (int const np){
+	case 1 :
+int Neq = 3;
+	double dom[2]= {0,10};
+	double alpha[3]= {0,0,0};
+	PVI_RKN34(dom,alpha,Neq);
+	Break;
+	}
+}
+int main()
+{
+	PVI_interface();
+	system("PAUSE");
+	return 0;
+}
