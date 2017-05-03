@@ -1,0 +1,209 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+double* fun_f(double t,double* u);
+
+double* sum_vec_2(double* v1,double *v2,int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i] + v2[i];
+    return out;
+}
+
+double* sum_vec_3(double* v1,double *v2,double *v3, int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i] + v2[i] + v3[i];
+    return out;
+}
+
+double* sum_vec_4(double* v1,double *v2,double* v3, double *v4,int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i] + v2[i]+ v3[i]+ v4[i];
+    return out;
+}
+
+double* sum_vec_5(double* v1,double *v2,double* v3, double *v4,double *v5,int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i] + v2[i]+ v3[i]+ v4[i] + v5[i];
+    return out;
+}
+
+double* sum_vec_6(double* v1,double *v2,double* v3, double *v4,double *v5,double *v6,int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i] + v2[i]+ v3[i]+ v4[i] + v5[i] + v6[i];
+    return out;
+}
+
+double* prod_vec(double* v1,double num,int N)
+{
+    double* out;
+    out = (double*) malloc(sizeof(double)*N);
+    int i;
+    for(i = 0;i<N;i++)
+        out[i] = v1[i]*num;
+    return out;   
+}
+
+void print_vector(double *v1,int n)
+{
+	int i = 0;
+	for(i = 0;i<n;i++)
+		printf("%lf ",v1[i]);
+}
+
+
+
+
+void PVI_RKN34(double *dom,double *alpha,double Neq)
+{
+	int Ndec=3,i,j,k,OK,m,n=10;
+	double *u,**uv,*uRK3, *uRK4, *tv, Err;
+	double *R1, *R2, *R3, *R4,*R5;
+	double t0, tf, t, tol, h, hmax,q;
+	FILE * fichero;
+
+	uv = (double**) malloc(sizeof(double*)*1000);
+
+	tv = (double*) malloc(sizeof(double)*1000);
+	R1 = (double*) malloc(sizeof(double)*Neq);
+	R2 = (double*) malloc(sizeof(double)*Neq);
+	R3 = (double*) malloc(sizeof(double)*Neq);
+	R4 = (double*) malloc(sizeof(double)*Neq);
+	R5 = (double*) malloc(sizeof(double)*Neq);
+	uRK3 = (double*) malloc(sizeof(double)*Neq);
+	uRK4 = (double*) malloc(sizeof(double)*Neq);
+	u = (double*) malloc(sizeof(double)*Neq);
+
+	for(i = 0;i<n+1;i++)
+		uv[i] = (double*) malloc(sizeof(double)*Neq);
+
+	for(i = 0;i<Neq;i++)
+	{
+		uRK3[i] = alpha[i];
+		uRK4[i] = alpha[i];
+		u[i] = alpha[i];
+		uv[0][i] = alpha[i];
+	}
+
+	t0 = dom[0];   tf = dom[1];
+	t = t0; tv[0] = t;
+	tol = pow(10,-Ndec);
+	hmax =(tf-t0)/n; h = hmax;
+	OK=1;  m=0 ;
+
+	fichero = fopen ("datos.txt", "w");
+	//fprintf(fichero, "%s\t  %s\t\n", "tv","uv");
+	fprintf(fichero, "%lf\t",tv[0]);
+	for(i = 0;i<Neq;i++)
+		fprintf(fichero,"%lf\t",uv[0][i]);
+	fprintf(fichero,"\n");
+
+	double a[5] = {0,3/8.0,9/16.0,25/32.0,1.0};
+	double b[5][4] = {{0,0,0,0},{3/8.0,0,0,0},{0,9/16.0,0,0},{-125/672.0,325/336.0,0,0},{371/891.0,-200/297.0,1120/891.0,0}};
+	double c3[5] = {37/225.0,44/117.0,0,448/975.0,0};
+	double c4[5] = {25.0/162.0,32.0/135.0,256.0/567.0,0.0,11.0/70.0};
+
+
+	while(OK)
+	{
+		R1 = prod_vec(fun_f(t,u),h,Neq);
+		R2 = prod_vec(fun_f(t+a[1]*h,sum_vec_2(u,prod_vec(R1,b[1][0],Neq),Neq)),h,Neq);
+		R3 = prod_vec(fun_f(t+a[2]*h,sum_vec_3(u,prod_vec(R1,b[2][0],Neq),prod_vec(R2,b[2][1],Neq),Neq)),h,Neq);
+		R4 = prod_vec(fun_f(t+a[2]*h,sum_vec_4(u,prod_vec(R1,b[3][0],Neq),prod_vec(R2,b[3][1],Neq),prod_vec(R3,b[3][2],Neq),Neq)),h,Neq);
+		R5 = prod_vec(fun_f(t+a[2]*h,sum_vec_5(u,prod_vec(R1,b[4][0],Neq),prod_vec(R2,b[4][1],Neq),prod_vec(R3,b[4][2],Neq),prod_vec(R4,b[4][3],Neq),Neq)),h,Neq);
+		uRK3 = sum_vec_6(u,prod_vec(R1,c3[0],Neq),prod_vec(R2,c3[1],Neq),prod_vec(R3,c3[2],Neq),prod_vec(R4,c3[3],Neq),prod_vec(R5,c3[4],Neq),Neq);
+		uRK4 = sum_vec_6(u,prod_vec(R1,c4[0],Neq),prod_vec(R2,c4[1],Neq),prod_vec(R3,c4[2],Neq),prod_vec(R4,c4[3],Neq),prod_vec(R5,c4[4],Neq),Neq);
+
+
+		Err = 0.0;
+		for(i=0;i<Neq;i++)
+			Err += pow(uRK4[i]-uRK3[i],2);
+		Err  = sqrt(Err);
+
+
+		if(Err<tol)
+		{
+			m = m + 1;
+			u = uRK4;
+			uv[m] = u;
+			t = t +h;
+			tv[m] = t;
+			fprintf(fichero, "%lf\t",tv[m]);
+			for(i = 0;i<Neq;i++)
+				fprintf(fichero,"%lf\t",uv[m][i]);
+			fprintf(fichero,"\n");
+			printf("%lf\n",t);
+		}
+
+		else
+		{
+			q = pow((tol/Err),1/4.0);
+			printf("%lf\t %lf\t %lf",q,tv[m],tf);
+			if (q <= 0.1) {
+				q = 0.1;
+			}
+			 
+			if (q >= 4){
+				q = 4.0;
+			}
+			 
+			h = q*h;
+
+			if (hmax < h){
+				h = hmax;
+			}
+		}
+		if (t+h >= tf){
+				h = tf - t;
+			}
+		if (t == tf){
+				OK = 0;
+			}
+	}
+	fclose(fichero);
+}
+
+/////////////////////////////////////////////////////////////
+
+double* fun_f(double t, double *u) {
+	double res1=2,res2=8,L=1,Ca=0.5,E=200;
+	double *du;
+	du = (double*) malloc(sizeof(double)*3);
+
+	du[0]= (E/L)- u[0]*(res1/L)+u[1]*(res1/L);
+	du[1]=(((E*(res1/L))-(u[0]*(pow(res1,2))/L)+ (u[1]*(((pow(res1,2)/L)-1/Ca))))*(1/(res1+res2)));
+	du[2]= u[2];
+	return du;
+}
+
+void PVI_interface () {
+	int Neq = 3;
+	double dom[2]= {0,10};
+	double alpha[3]= {0,0,0};
+	PVI_RKN34(dom,alpha,Neq);
+}
+int main()
+{
+	PVI_interface();
+	return 0;
+}
